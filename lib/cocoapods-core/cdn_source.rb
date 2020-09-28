@@ -365,7 +365,7 @@ module Pod
       download_and_save_with_retries_async(partial_url, file_remote_url, etag)
     end
 
-    def download_and_save_with_retries_async(partial_url, file_remote_url, etag, retries = MAX_NUMBER_OF_RETRIES)
+    def download_and_save_with_retries_async(partial_url, file_remote_url, etag, retries = 1)
       path = repo + partial_url
       etag_path = path.sub_ext(path.extname + '.etag')
 
@@ -394,6 +394,7 @@ module Pod
         when 502, 503, 504
           # Retryable HTTP errors, usually related to server overloading
           if retries <= 1
+            print "CDN: #{name} URL couldn't be downloaded: #{file_remote_url} Response: #{response.response_code} #{response.response_body}"
             raise Informative, "CDN: #{name} URL couldn't be downloaded: #{file_remote_url} Response: #{response.response_code} #{response.response_body}"
           else
             debug "CDN: #{name} URL couldn't be downloaded: #{file_remote_url} Response: #{response.response_code} #{response.response_body}, retries: #{retries - 1}"
