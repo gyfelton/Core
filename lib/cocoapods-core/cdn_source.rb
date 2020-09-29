@@ -389,12 +389,13 @@ module Pod
           File.open(etag_path, 'w') { |f| f.write(etag_new) } unless etag_new.nil?
           partial_url
         when 404
+          puts "==== CDN: #{name} URL couldn't be downloaded: #{partial_url} Response: #{response.response_code} #{response.response_body}"
           debug "CDN: #{name} Relative path couldn't be downloaded: #{partial_url} Response: #{response.response_code}"
           nil
         when 502, 503, 504
           # Retryable HTTP errors, usually related to server overloading
           if retries <= 1
-            print "CDN: #{name} URL couldn't be downloaded: #{file_remote_url} Response: #{response.response_code} #{response.response_body}"
+            puts "==== CDN: #{name} URL couldn't be downloaded: #{file_remote_url} Response: #{response.response_code} #{response.response_body}"
             raise Informative, "CDN: #{name} URL couldn't be downloaded: #{file_remote_url} Response: #{response.response_code} #{response.response_body}"
           else
             debug "CDN: #{name} URL couldn't be downloaded: #{file_remote_url} Response: #{response.response_code} #{response.response_body}, retries: #{retries - 1}"
@@ -405,6 +406,7 @@ module Pod
         when 0
           # Non-HTTP errors, usually network layer
           if retries <= 1
+            puts "==== CDN: #{name} URL couldn't be downloaded: #{file_remote_url} Response: #{response.response_code} #{response.response_body}"
             raise Informative, "CDN: #{name} URL couldn't be downloaded: #{file_remote_url} Response: #{response.return_message}"
           else
             debug "CDN: #{name} URL couldn't be downloaded: #{file_remote_url} Response: #{response.return_message}, retries: #{retries - 1}"
